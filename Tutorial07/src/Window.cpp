@@ -1,46 +1,3 @@
-#include "Prerequisites.h"
-
-
-/// <summary>
-/// This class is in charge of generatting new window
-/// </summary>
-class Window
-{
-public:
-    Window();
-    ~Window();
-
-    /// <summary>
-    /// The method is in charge of generate a window
-    /// </summary>
-    /// <param name="hInstance"> A single ID for the window / Copy of the resource </param>
-    /// <param name="nCmdShow"> Command list window </param>
-    /// <param name="wndproc"> Input Bridge </param>
-    /// <returns></returns>
-    HRESULT
-        init(HINSTANCE hInstance, int nCmdShow, WNDPROC wndproc);
-
-    void
-        update();
-
-    void
-        render();
-
-    void
-        destroy();
-
-public:
-    HWND m_hWnd = nullptr;
-    unsigned int m_width;
-    unsigned int m_height;
-private:
-    HINSTANCE m_hInst = nullptr;
-    RECT m_rect;
-    std::string m_WindowName = "Direct3D 11 Tutorial 7";
-};
-[12:26 AM]
------------------------------------------------- -
-[12:26 AM]
 #include "Window.h"
 
 Window::Window()
@@ -72,7 +29,7 @@ HRESULT Window::init(HINSTANCE hInstance, int nCmdShow, WNDPROC wndproc)
         return E_FAIL;
 
     // Create window
-    RECT rc = { 0, 0, 640, 480 };
+    RECT rc = { 0, 0, 1500, 840 };
     m_rect = rc;
     AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
     m_hWnd = CreateWindow("TutorialWindowClass",
