@@ -1,18 +1,16 @@
 //--------------------------------------------------------------------------------------
-// File: BananasEngine.cpp
+// File: Tutorial07.cpp
 //
 // This application demonstrates texturing
 //
 // Copyright (c) Microsoft Corporation. All rights reserved.
 //--------------------------------------------------------------------------------------
-#include <windows.h>
-#include <d3d11.h>
-#include <d3dx11.h>
-#include <d3dcompiler.h>
-#include <xnamath.h>
-#include "resource.h"
+#include "Prerequisites.h"
 #include "Window.h"
 #include "Device.h"
+#include "DeviceContext.h"
+#include "DepthStencilView.h"
+#include "Texture.h"
 
 //--------------------------------------------------------------------------------------
 // Structures
@@ -45,14 +43,17 @@ struct CBChangesEveryFrame
 //--------------------------------------------------------------------------------------
 Window                              g_window;
 Device                              g_device;
+DeviceContext                       g_deviceContext;
+Texture                             g_depthStencil;
+DepthStencilView                    g_depthStencilView;
 D3D_DRIVER_TYPE                     g_driverType = D3D_DRIVER_TYPE_NULL;
 D3D_FEATURE_LEVEL                   g_featureLevel = D3D_FEATURE_LEVEL_11_0;
 //ID3D11Device* g_pd3dDevice = nullptr;
-ID3D11DeviceContext* g_pImmediateContext = nullptr;
+//ID3D11DeviceContext* g_pImmediateContext = nullptr;
 IDXGISwapChain* g_pSwapChain = nullptr;
 ID3D11RenderTargetView* g_pRenderTargetView = nullptr;
-ID3D11Texture2D* g_pDepthStencil = nullptr;
-ID3D11DepthStencilView* g_pDepthStencilView = nullptr;
+//ID3D11Texture2D* g_pDepthStencil = nullptr;
+//ID3D11DepthStencilView* g_pDepthStencilView = nullptr;
 ID3D11VertexShader* g_pVertexShader = nullptr;
 ID3D11PixelShader* g_pPixelShader = nullptr;
 ID3D11InputLayout* g_pVertexLayout = nullptr;
@@ -194,7 +195,7 @@ HRESULT InitDevice()
     {
         g_driverType = driverTypes[driverTypeIndex];
         hr = D3D11CreateDeviceAndSwapChain(nullptr, g_driverType, nullptr, createDeviceFlags, featureLevels, numFeatureLevels,
-            D3D11_SDK_VERSION, &sd, &g_pSwapChain, &g_device.m_device, &g_featureLevel, &g_pImmediateContext);
+            D3D11_SDK_VERSION, &sd, &g_pSwapChain, &g_device.m_device, &g_featureLevel, & g_deviceContext.m_deviceContext);
         if (SUCCEEDED(hr))
             break;
     }
@@ -213,7 +214,7 @@ HRESULT InitDevice()
         return hr;
 
     // Create depth stencil texture
-    D3D11_TEXTURE2D_DESC descDepth;
+    /*D3D11_TEXTURE2D_DESC descDepth;
     ZeroMemory(&descDepth, sizeof(descDepth));
     descDepth.Width = g_window.m_width;
     descDepth.Height = g_window.m_height;
@@ -229,9 +230,9 @@ HRESULT InitDevice()
     hr = g_device.CreateTexture2D(&descDepth, nullptr, &g_pDepthStencil);
     if (FAILED(hr))
         return hr;
-
+    */
     // Create the depth stencil view
-    D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
+    /*D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
     ZeroMemory(&descDSV, sizeof(descDSV));
     descDSV.Format = descDepth.Format;
     descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
@@ -239,8 +240,18 @@ HRESULT InitDevice()
     hr = g_device.CreateDepthStencilView(g_pDepthStencil, &descDSV, &g_pDepthStencilView);
     if (FAILED(hr))
         return hr;
+    */
+    g_depthStencil.init(g_device,
+        g_window.m_width,
+        g_window.m_height,
+        DXGI_FORMAT_D24_UNORM_S8_UINT,
+        D3D11_BIND_DEPTH_STENCIL);
 
-    g_pImmediateContext->OMSetRenderTargets(1, &g_pRenderTargetView, g_pDepthStencilView);
+    g_depthStencilView.init(g_device,
+        g_depthStencil.m_texture,
+        DXGI_FORMAT_D24_UNORM_S8_UINT);
+
+    g_deviceContext.m_deviceContext->OMSetRenderTargets(1, &g_pRenderTargetView, g_depthStencilView.m_depthStencilView);
 
     // Setup the viewport
     D3D11_VIEWPORT vp;
@@ -250,7 +261,7 @@ HRESULT InitDevice()
     vp.MaxDepth = 1.0f;
     vp.TopLeftX = 0;
     vp.TopLeftY = 0;
-    g_pImmediateContext->RSSetViewports(1, &vp);
+    g_deviceContext.m_deviceContext->RSSetViewports(1, &vp);
 
     // Compile the vertex shader
     ID3DBlob* pVSBlob = nullptr;
@@ -286,7 +297,7 @@ HRESULT InitDevice()
         return hr;
 
     // Set the input layout
-    g_pImmediateContext->IASetInputLayout(g_pVertexLayout);
+    g_deviceContext.m_deviceContext->IASetInputLayout(g_pVertexLayout);
 
     // Compile the pixel shader
     ID3DBlob* pPSBlob = nullptr;
@@ -354,7 +365,7 @@ HRESULT InitDevice()
     // Set vertex buffer
     UINT stride = sizeof(SimpleVertex);
     UINT offset = 0;
-    g_pImmediateContext->IASetVertexBuffers(0, 1, &g_pVertexBuffer, &stride, &offset);
+    g_deviceContext.m_deviceContext->IASetVertexBuffers(0, 1, &g_pVertexBuffer, &stride, &offset);
 
     // Create index buffer
     // Create vertex buffer
@@ -389,10 +400,10 @@ HRESULT InitDevice()
         return hr;
 
     // Set index buffer
-    g_pImmediateContext->IASetIndexBuffer(g_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+    g_deviceContext.m_deviceContext->IASetIndexBuffer(g_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
 
     // Set primitive topology
-    g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    g_deviceContext.m_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     // Create the constant buffers
     bd.Usage = D3D11_USAGE_DEFAULT;
@@ -443,14 +454,14 @@ HRESULT InitDevice()
 
     CBNeverChanges cbNeverChanges;
     cbNeverChanges.mView = XMMatrixTranspose(g_View);
-    g_pImmediateContext->UpdateSubresource(g_pCBNeverChanges, 0, nullptr, &cbNeverChanges, 0, 0);
+    g_deviceContext.m_deviceContext->UpdateSubresource(g_pCBNeverChanges, 0, nullptr, &cbNeverChanges, 0, 0);
 
     // Initialize the projection matrix
     g_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, g_window.m_width / (float)g_window.m_height, 0.01f, 100.0f);
 
     CBChangeOnResize cbChangesOnResize;
     cbChangesOnResize.mProjection = XMMatrixTranspose(g_Projection);
-    g_pImmediateContext->UpdateSubresource(g_pCBChangeOnResize, 0, nullptr, &cbChangesOnResize, 0, 0);
+    g_deviceContext.m_deviceContext->UpdateSubresource(g_pCBChangeOnResize, 0, nullptr, &cbChangesOnResize, 0, 0);
 
     return S_OK;
 }
@@ -461,7 +472,7 @@ HRESULT InitDevice()
 //--------------------------------------------------------------------------------------
 void CleanupDevice()
 {
-    if (g_pImmediateContext) g_pImmediateContext->ClearState();
+    if (g_deviceContext.m_deviceContext) g_deviceContext.m_deviceContext->ClearState();
 
     if (g_pSamplerLinear) g_pSamplerLinear->Release();
     if (g_pTextureRV) g_pTextureRV->Release();
@@ -473,11 +484,11 @@ void CleanupDevice()
     if (g_pVertexLayout) g_pVertexLayout->Release();
     if (g_pVertexShader) g_pVertexShader->Release();
     if (g_pPixelShader) g_pPixelShader->Release();
-    if (g_pDepthStencil) g_pDepthStencil->Release();
-    if (g_pDepthStencilView) g_pDepthStencilView->Release();
+    //if (g_pDepthStencil) g_pDepthStencil->Release();
+    //if (g_pDepthStencilView) g_pDepthStencilView->Release();
     if (g_pRenderTargetView) g_pRenderTargetView->Release();
     if (g_pSwapChain) g_pSwapChain->Release();
-    if (g_pImmediateContext) g_pImmediateContext->Release();
+    //if( g_deviceContext.m_deviceContext ) g_deviceContext.m_deviceContext->Release();
     //if (g_pd3dDevice) g_pd3dDevice->Release();
     g_device.destroy();
 };
@@ -542,33 +553,34 @@ void Render()
     // Clear the back buffer
     //
     float ClearColor[4] = { 0.0f, 0.125f, 0.3f, 1.0f }; // red, green, blue, alpha
-    g_pImmediateContext->ClearRenderTargetView(g_pRenderTargetView, ClearColor);
+    g_deviceContext.m_deviceContext->ClearRenderTargetView(g_pRenderTargetView, ClearColor);
 
     //
     // Clear the depth buffer to 1.0 (max depth)
     //
-    g_pImmediateContext->ClearDepthStencilView(g_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
-
+    //g_pImmediateContext->ClearDepthStencilView(g_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+    g_depthStencilView.render(g_deviceContext);
     //
     // Update variables that change once per frame
     //
     CBChangesEveryFrame cb;
     cb.mWorld = XMMatrixTranspose(g_World);
     cb.vMeshColor = g_vMeshColor;
-    g_pImmediateContext->UpdateSubresource(g_pCBChangesEveryFrame, 0, nullptr, &cb, 0, 0);
+    g_deviceContext.m_deviceContext->UpdateSubresource(g_pCBChangesEveryFrame, 0, nullptr, &cb, 0, 0);
 
     //
     // Render the cube
     //
-    g_pImmediateContext->VSSetShader(g_pVertexShader, nullptr, 0);
-    g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pCBNeverChanges);
-    g_pImmediateContext->VSSetConstantBuffers(1, 1, &g_pCBChangeOnResize);
-    g_pImmediateContext->VSSetConstantBuffers(2, 1, &g_pCBChangesEveryFrame);
-    g_pImmediateContext->PSSetShader(g_pPixelShader, nullptr, 0);
-    g_pImmediateContext->PSSetConstantBuffers(2, 1, &g_pCBChangesEveryFrame);
-    g_pImmediateContext->PSSetShaderResources(0, 1, &g_pTextureRV);
-    g_pImmediateContext->PSSetSamplers(0, 1, &g_pSamplerLinear);
-    g_pImmediateContext->DrawIndexed(36, 0, 0);
+    g_deviceContext.m_deviceContext->VSSetShader(g_pVertexShader, nullptr, 0);
+    g_deviceContext.m_deviceContext->VSSetConstantBuffers(0, 1, &g_pCBNeverChanges);
+    g_deviceContext.m_deviceContext->VSSetConstantBuffers(1, 1, &g_pCBChangeOnResize);
+    g_deviceContext.m_deviceContext->VSSetConstantBuffers(2, 1, &g_pCBChangesEveryFrame);
+    g_deviceContext.m_deviceContext->PSSetShader(g_pPixelShader, nullptr, 0);
+    g_deviceContext.m_deviceContext->PSSetConstantBuffers(2, 1, &g_pCBChangesEveryFrame);
+    g_deviceContext.m_deviceContext->PSSetShaderResources(0, 1, &g_pTextureRV);
+    g_deviceContext.m_deviceContext->PSSetSamplers(0, 1, &g_pSamplerLinear);
+    g_deviceContext.m_deviceContext->DrawIndexed(36, 0, 0);
+
 
     //
     // Present our back buffer to our front buffer
