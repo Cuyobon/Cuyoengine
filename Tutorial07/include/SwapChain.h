@@ -5,31 +5,31 @@ class DeviceContext;
 class Window;
 class Texture;
 
-class
-    SwapChain {
+class SwapChain {
 public:
     SwapChain() = default;
     ~SwapChain() { SAFE_RELEASE(m_swapChain); };
 
-    void
-        init(Device& device,
-            DeviceContext& deviceContext,
-            Texture& backBuffer,
-            Window window);
+    // Initializes the swap chain with the given device, device context, back buffer texture, and window.
+    void init(Device& device, DeviceContext& deviceContext, Texture& backBuffer, Window window);
 
-    void
-        update();
+    // Updates the swap chain.
+    void update();
 
-    void
-        render();
+    // Renders the swap chain.
+    void render();
 
-    void
-        destroy();
+    // Destroys the swap chain.
+    void destroy();
 
 public:
+    // Pointer to the swap chain object.
     IDXGISwapChain* m_swapChain = nullptr;
-private:
-    D3D_DRIVER_TYPE m_driverType = D3D_DRIVER_TYPE_NULL;
-    D3D_FEATURE_LEVEL m_feature_level = D3D_FEATURE_LEVEL_11_0;
 
+private:
+    // The driver type.
+    D3D_DRIVER_TYPE m_driverType = D3D_DRIVER_TYPE_NULL;
+
+    // The feature level.
+    D3D_FEATURE_LEVEL m_feature_level = D3D_FEATURE_LEVEL_11_0;
 };

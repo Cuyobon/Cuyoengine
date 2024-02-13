@@ -3,38 +3,30 @@
 class Device;
 class DeviceContext;
 
-class
-    Texture {
-
+class Texture {
 public:
     Texture() = default;
     ~Texture();
 
-    void
-        init(Device device, std::string textureName);
+    // Initializes the texture with a given device and texture name.
+    void init(Device device, std::string textureName);
 
-    void
-        init(Device device,
-            unsigned width,
-            unsigned height,
-            DXGI_FORMAT Format,
-            unsigned int BlindFlags);
+    // Initializes the texture with given dimensions, format, and flags.
+    void init(Device device, unsigned width, unsigned height, DXGI_FORMAT Format, unsigned int BlindFlags);
 
-    void
-        update();
+    // Updates the texture.
+    void update();
 
-    void
-        render(DeviceContext& deviceContext, unsigned int StarSlot);
+    // Renders the texture.
+    void render(DeviceContext& deviceContext, unsigned int StarSlot);
 
-    void
-        destroy();
+    // Destroys the texture.
+    void destroy();
 
 public:
-    //The variable is in charge from handle a texture resource as data
+    // The variable is in charge of handling a texture resource as data.
     ID3D11Texture2D* m_texture = nullptr;
 
-    //This variable is in charge of a handle texture resource as image data
+    // This variable is in charge of handling a texture resource as image data.
     ID3D11ShaderResourceView* m_textureFromImg;
-
 };
-

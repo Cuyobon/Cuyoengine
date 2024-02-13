@@ -2,28 +2,26 @@
 #include "Prerequisites.h"
 
 class Device;
-
 class DeviceContext;
 
-class
-    DepthStencilView {
+class DepthStencilView {
 public:
     DepthStencilView() = default;
     ~DepthStencilView() { SAFE_RELEASE(m_depthStencilView); };
 
-    void
-        init(Device device, ID3D11Resource* depthStencil, DXGI_FORMAT format);
+    // Initializes the depth stencil view.
+    void init(Device device, ID3D11Resource* depthStencil, DXGI_FORMAT format);
 
-    void
-        update();
+    // Updates the depth stencil view.
+    void update();
 
-    void
-        render(DeviceContext& deviceContext);
+    // Renders using the depth stencil view.
+    void render(DeviceContext& deviceContext);
 
-    void
-        destroy();
+    // Destroys the depth stencil view.
+    void destroy();
 
 public:
+    // Pointer to the depth stencil view.
     ID3D11DepthStencilView* m_depthStencilView = nullptr;
-
 };

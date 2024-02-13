@@ -2,16 +2,22 @@
 
 Window::Window()
 {
+    // Constructor por defecto
 }
 
 Window::~Window()
 {
+    // Destructor
 }
 
 HRESULT Window::init(HINSTANCE hInstance, int nCmdShow, WNDPROC wndproc)
 {
+    // Inicializa la ventana
+
+    // Almacena el handle de la instancia de la aplicación
     m_hInst = hInstance;
-    // Register class
+
+    // Registra la clase de la ventana
     WNDCLASSEX wcex;
     wcex.cbSize = sizeof(WNDCLASSEX);
     wcex.style = CS_HREDRAW | CS_VREDRAW;
@@ -28,7 +34,7 @@ HRESULT Window::init(HINSTANCE hInstance, int nCmdShow, WNDPROC wndproc)
     if (!RegisterClassEx(&wcex))
         return E_FAIL;
 
-    // Create window
+    // Crea la ventana
     RECT rc = { 0, 0, 1000, 1000 };
     m_rect = rc;
     AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
@@ -46,8 +52,10 @@ HRESULT Window::init(HINSTANCE hInstance, int nCmdShow, WNDPROC wndproc)
     if (!m_hWnd)
         return E_FAIL;
 
+    // Muestra la ventana
     ShowWindow(m_hWnd, nCmdShow);
 
+    // Obtiene las dimensiones de la ventana
     GetClientRect(m_hWnd, &m_rect);
     m_width = m_rect.right - m_rect.left;
     m_height = m_rect.bottom - m_rect.top;
@@ -55,18 +63,17 @@ HRESULT Window::init(HINSTANCE hInstance, int nCmdShow, WNDPROC wndproc)
     return S_OK;
 }
 
-void
-Window::update()
+void Window::update()
 {
+    // Actualiza la ventana
 }
 
-void
-Window::render()
+void Window::render()
 {
+    // Renderiza la ventana
 }
 
-void
-Window::destroy()
+void Window::destroy()
 {
+    // Destruye la ventana
 }
-
