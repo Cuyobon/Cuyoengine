@@ -21,15 +21,15 @@ public:
 
     // Destroys the swap chain.
     void destroy();
-
+    void present();
 public:
     // Pointer to the swap chain object.
     IDXGISwapChain* m_swapChain = nullptr;
-
+    D3D_DRIVER_TYPE m_driverType = D3D_DRIVER_TYPE_NULL;
 private:
     // The driver type.
-    D3D_DRIVER_TYPE m_driverType = D3D_DRIVER_TYPE_NULL;
+    
 
     // The feature level.
-    D3D_FEATURE_LEVEL m_feature_level = D3D_FEATURE_LEVEL_11_0;
+    D3D_FEATURE_LEVEL m_featureLevel = D3D_FEATURE_LEVEL_11_0;
 };
