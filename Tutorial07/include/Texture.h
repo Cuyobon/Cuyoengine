@@ -18,7 +18,8 @@ public:
     void update();
 
     // Renders the texture.
-    void render(DeviceContext& deviceContext, unsigned int StarSlot);
+    void render(DeviceContext& deviceContext, unsigned int StarSlot, unsigned int NumViews);
+
 
     // Destroys the texture.
     void destroy();

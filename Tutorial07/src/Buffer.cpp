@@ -141,6 +141,12 @@ void Buffer::render(DeviceContext& deviceContext, DXGI_FORMAT format)
 	}
 }
 
+void Buffer::renderModel(DeviceContext& deviceContext, unsigned int StartSlot, unsigned int NumBuffers)
+{
+	deviceContext.m_deviceContext->VSSetConstantBuffers(StartSlot, NumBuffers, &m_buffer);
+	deviceContext.m_deviceContext->PSSetConstantBuffers(StartSlot, NumBuffers, &m_buffer);
+}
+
 void Buffer::destroy()
 {
 	SAFE_RELEASE(m_buffer);

@@ -35,7 +35,7 @@ HRESULT Window::init(HINSTANCE hInstance, int nCmdShow, WNDPROC wndproc)
         return E_FAIL;
 
     // Crea la ventana
-    RECT rc = { 0, 0, 1000, 1000 };
+    RECT rc = { 0, 0, 1920, 1080 };
     m_rect = rc;
     AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
     m_hWnd = CreateWindow("TutorialWindowClass",
